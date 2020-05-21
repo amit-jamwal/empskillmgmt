@@ -4,18 +4,20 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { Provider } from 'react-redux';
+import configureStore from './store/store';
+import 'bootstrap/dist/css/bootstrap.css';
+import { BrowserRouter as Router } from 'react-router-dom';
+import 'font-awesome/css/font-awesome.min.css';
 
-let intialState = {
-  todos: []
-}
-
-let store = configureStore(intialState)
+let store = configureStore()
 
 
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <Router>
+        <App />
+      </Router>
     </Provider>
   </React.StrictMode>,
   document.getElementById('root')

@@ -1,0 +1,15 @@
+.card {
+    border: none !important; 
+}
+.card-header,
+.card-footer {
+    background-color: #343a40 !important;
+    color: #FFF;
+    font-weight: bolder;
+}
+.btn-info {
+    float: right;
+}
+.button {
+    float: none !important;
+}
