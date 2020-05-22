@@ -99,8 +99,9 @@ class AddExperiences extends Component {
                                         <Label for="designation">Designation</Label>
                                         <Input type="text" name="designation" id="designation" placeholder="Designation"
                                             invalid={this.state.validation.reqDesignation}
-                                            onChange={(e) => this.handleValildation('companyName')} />
-                                        <FormFeedback >Required</FormFeedback></FormGroup>
+                                            onChange={(e) => this.handleValildation('designation')} />
+                                        <FormFeedback >Required</FormFeedback>
+                                    </FormGroup>
                                 </Col>
                             </Row>
                             <Row form>

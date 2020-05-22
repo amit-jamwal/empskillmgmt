@@ -29,9 +29,28 @@ export const showExperience = () => {
 }
 
 export const deleteExperience = (id) => {
-    console.log('**************id', id)
     return {
         type: action.DELETE_EXPERIENCE,
+        index: id
+    }
+}
+
+export const addSkills = (data) => {
+    return {
+        type: action.ADD_SKILLS,
+        experienceList: data
+    }
+}
+
+export const showSkills = () => {
+    return {
+        type: action.SHOW_SKILLS
+    }
+}
+
+export const deleteSkills = (id) => {
+    return {
+        type: action.DELETE_SKILLS,
         index: id
     }
 }

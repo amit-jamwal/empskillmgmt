@@ -1,0 +1,5 @@
+.table-responsive {
+    height: 500px !important;
+    overflow: auto;
+    border: 1px solid #dee2e6
+  }

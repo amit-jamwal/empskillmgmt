@@ -9,5 +9,8 @@ export {
     showPersonalInfo,
     addExperience,
     showExperience,
-    deleteExperience
+    deleteExperience,
+    addSkills,
+    showSkills,
+    deleteSkills
 } from './addEmployeeAction'
