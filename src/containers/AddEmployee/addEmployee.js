@@ -4,10 +4,9 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { connect } from 'react-redux';
 import * as action from '../../store/action/index';
-// import history from '../../common/history';
 import { withRouter } from 'react-router-dom';
-
-import moment from 'moment';
+import './addEmployee.css'
+import * as moment from 'moment';
 
 class AddEmployee extends Component {
     constructor(props) {
@@ -21,31 +20,38 @@ class AddEmployee extends Component {
                 requiredEmail: false,
                 invalidDOB: false
             },
-            DOB: new Date()
-
+            dob: null
         }
+    }
 
-
+    componentDidMount() {
+        if (Object.keys(this.props.personalInfo).length > 0) {
+            this.setState({
+                dob: new Date(this.props.personalInfo.dob)
+            })
+        }
     }
 
     handleValidation = (control, e) => {
         switch (control) {
             case 'firstName':
-                this.setState({ validation: { invalidFirstName: false } });
+                this.setState({ ...this.state, validation: { ...this.state.validation, invalidFirstName: false } });
                 break;
             case 'lastName':
-                this.setState({ validation: { invalidLastName: false } });
+                this.setState({ ...this.state, validation: { ...this.state.validation, invalidLastName: false } });
                 break;
-            case 'gender':
-                this.setState({ validation: { invalidGender: false } });
+            case 'sex':
+                this.setState({ ...this.state, validation: { ...this.state.validation, invalidGender: false } });
                 break;
             case 'email':
                 const emailRex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
                 if (emailRex.test(e.target.value)) {
-                    this.setState({ validation: { invalidEmail: false } });
+                    this.setState({ ...this.state, validation: { ...this.state.validation, invalidEmail: false } });
                 } else {
-                    this.setState({ validation: { invalidEmail: true } });
+                    this.setState({ ...this.state, validation: { ...this.state.validation, invalidEmail: true } });
                 }
+                break;
+            default:
                 break;
         }
     }
@@ -57,44 +63,44 @@ class AddEmployee extends Component {
             firstName: data.get('firstName'),
             lastName: data.get('lastName'),
             email: data.get('email'),
-            gender: data.get('gender'),
-            DOB: '26/10/1986'
+            sex: data.get('sex'),
+            dob: moment(this.state.dob).format('YYYY-MM-DD')
         }
-        if (!personalInfo.firstName || !personalInfo.lastName || !personalInfo.email || personalInfo.gender === 'Select') {
+        if (!personalInfo.firstName || !personalInfo.lastName || !personalInfo.email || personalInfo.sex === 'Select' || personalInfo.dob === 'Invalid date') {
             this.setState({
                 validation: {
                     invalidFirstName: !personalInfo.firstName,
                     invalidLastName: !personalInfo.lastName,
-                    invalidGender: personalInfo.gender === 'Select',
-                    invalidEmail: !personalInfo.email
+                    invalidGender: personalInfo.sex === 'Select',
+                    invalidEmail: !personalInfo.email,
+                    invalidDOB: personalInfo.dob === 'Invalid date'
                 }
             })
-
-            // return;
         } else {
-
             if (this.state.validation.invalidEmail) {
                 return;
             }
-            // console.log(JSON.parse(JSON.stringify(personalInfo)));
-            this.props.bindPersonalInfo(personalInfo);
+            this.props.addPersonalInfo(personalInfo);
             setTimeout(() => {
                 this.props.history.push('/addexperiences');
             }, 0);
         }
     }
     handleDOB = (date) => {
-        console.log(date)
-        this.setState({ DOB: date });
+        this.setState({ ...this.state, validation: { ...this.state.validation, invalidDOB: false }, dob: date });
+    }
+    goBack = () => {
+        this.props.clear();
+        this.props.history.goBack();
     }
     render() {
         return (
-            <div className="container">
+            <div className="container-fluid">
                 <Card body>
                     <CardHeader>
-                        Personal Information
+                        <span>  Personal Information</span>
                     </CardHeader>
-                    <Form className="container" onSubmit={this.handleSubmit} autoComplete='off'>
+                    <Form onSubmit={this.handleSubmit} autoComplete='off'>
                         <Row form>
                             <Col md={6}>
                                 <FormGroup>
@@ -102,29 +108,35 @@ class AddEmployee extends Component {
                                     <Input type="text" name="firstName" id="firstName" placeholder="First Name"
                                         invalid={this.state.validation.invalidFirstName}
                                         defaultValue={this.props?.personalInfo.firstName}
-                                        onChange={() => this.handleValidation('firstName')}
+                                        onBlur={() => this.handleValidation('firstName')}
                                     />
-                                    <FormFeedback invalid>Required</FormFeedback>
+                                    <FormFeedback >Required</FormFeedback>
                                 </FormGroup>
                             </Col>
                             <Col md={6}>
                                 <FormGroup>
                                     <Label for="lastName">Last Name</Label>
-                                    <Input type="text" name="lastName" id="lastName" placeholder="Last Name" defaultValue={this.props?.personalInfo.lastName} invalid={this.state.validation.invalidLastName} onChange={() => this.handleValidation('lastName')} />
-                                    <FormFeedback invalid>Required</FormFeedback></FormGroup>
+                                    <Input type="text" name="lastName" id="lastName" placeholder="Last Name"
+                                        defaultValue={this.props?.personalInfo.lastName}
+                                        invalid={this.state.validation.invalidLastName}
+                                        onBlur={() => this.handleValidation('lastName')} />
+                                    <FormFeedback >Required</FormFeedback></FormGroup>
                             </Col>
                         </Row>
                         <Row form>
                             <Col md={6}>
                                 <FormGroup>
-                                    <Label for="Gender">Gender</Label>
-                                    <Input type="select" name="gender" id="Gender" defaultValue={this.props?.personalInfo.gender} invalid={this.state.validation.invalidGender} onChange={() => this.handleValidation('gender')}>
+                                    <Label for="sex">sex</Label>
+                                    <Input type="select" name="sex" id="sex"
+                                        defaultValue={this.props?.personalInfo.sex}
+                                        invalid={this.state.validation.invalidGender}
+                                        onChange={() => this.handleValidation('sex')}>
                                         <option>Select</option>
                                         <option>Male</option>
                                         <option>Female</option>
                                         <option>Other</option>
                                     </Input>
-                                    <FormFeedback invalid>Required</FormFeedback>
+                                    <FormFeedback >Required</FormFeedback>
                                 </FormGroup>
                             </Col>
                             <Col md={6}>
@@ -133,31 +145,33 @@ class AddEmployee extends Component {
                                     <Input type="text" name="email" id="Email" placeholder="Email"
                                         defaultValue={this.props?.personalInfo.email}
                                         invalid={this.state.validation.invalidEmail}
-                                        onChange={(e) => this.handleValidation('email', e)} />
-                                    <FormFeedback invalid>Invalid Email</FormFeedback>
+                                        onBlur={(e) => this.handleValidation('email', e)} />
+                                    <FormFeedback >Invalid Email</FormFeedback>
                                 </FormGroup>
                             </Col>
                         </Row>
                         <Row form>
                             <Col md={6}>
                                 <FormGroup>
-                                    <Label for="firstName">Date of Birth</Label>
-                                    {/* <Input type="text" name="firstName" id="firstName" placeholder="First Name" invalid={true} />
-                                <FormFeedback invalid tooltip>Sweet! that name is available</FormFeedback> */}
+                                    <Label for="startDate">Date of Birth</Label>
                                     <DatePicker
-                                        selected={this.state.DOB}
+                                        selected={this.state.dob}
                                         onChange={this.handleDOB}
                                         name="startDate"
                                         dateFormat="dd/MM/yyyy"
                                         className="form-control"
+                                        showMonthDropdown
+                                        showYearDropdown
+                                        dropdownMode="select"
                                     />
                                     <i className="fa fa-calendar"></i>
+                                    {this.state.validation.invalidDOB ? <div className="invalid-feedback dob-validation">Required</div> : null}
                                 </FormGroup>
                             </Col>
                         </Row>
                         <CardFooter>
-                            <Button type="submit">Next</Button>
-
+                            <Button className="btn btn-info mr-3" type="submit">Next</Button>
+                            <Button className="btn btn-info mr-3" onClick={this.goBack} type='button'>Back</Button>
                         </CardFooter>
                     </Form>
 
@@ -175,7 +189,8 @@ const mapStateToProps = (state) => {
 }
 const mapDispatchToProps = dispatch => {
     return {
-        bindPersonalInfo: (data) => dispatch(action.addPersonalInfo(data))
+        addPersonalInfo: (data) => dispatch(action.addPersonalInfo(data)),
+        clear: () => dispatch(action.clear())
     }
 }
 

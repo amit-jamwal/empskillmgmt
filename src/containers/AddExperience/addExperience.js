@@ -5,6 +5,8 @@ import { Button, Col, Form, FormFeedback, FormGroup, Input, Label, Modal, ModalB
 import * as action from '../../store/action/index';
 import { connect } from "react-redux";
 import { dateFormat } from "../../common/common-util";
+import * as moment from 'moment';
+import { parseISO } from "date-fns";
 
 class AddExperiences extends Component {
     constructor(props) {
@@ -16,46 +18,51 @@ class AddExperiences extends Component {
                 reqDateFrom: false,
                 reqDateTo: false
             },
-            dateFrom: new Date(),
-            dateTo: new Date()
+            fromDate: null,
+            toDate: null,
+            experienceData: null,
+            id: null,
+            isNew: false
         }
     }
 
     handleSubmit = (e) => {
-        // alert('helo');
         e.preventDefault();
         const formData = new FormData(e.target);
         const experience = {
-            companyName: formData.get('companyName'),
+            company: formData.get('company'),
             designation: formData.get('designation'),
-            dateFrom: dateFormat(this.state.dateFrom),
-            dateTo: dateFormat(this.state.dateTo)
+            fromDate: this.state.fromDate === 'Invalid date' ? 'Invalid date' : moment(this.state.fromDate).format('YYYY-MM-DD'),
+            toDate: this.state.toDate === 'Invalid date' ? 'Invalid date' : moment(this.state.toDate).format('YYYY-MM-DD')
         }
-        console.log(experience);
-        if (!experience.companyName || !experience.designation || !experience.dateFrom || !experience.dateTo) {
+        if (!experience.company || !experience.designation || experience.fromDate === 'Invalid date' || experience.toDate === 'Invalid date') {
             this.setState({
                 validation: {
-                    reqCompany: !experience.companyName,
+                    reqCompany: !experience.company,
                     reqDesignation: !experience.designation,
-                    reqDateFrom: !experience.dateFrom,
-                    reqDateTo: !experience.dateTo
+                    reqDateFrom: experience.fromDate === 'Invalid date',
+                    reqDateTo: experience.toDate === 'Invalid date'
                 }
             })
-            // setTimeout(() => {
-            //     console.log('adsf', this.state.validation);
-            // }, 0);
         } else {
-            this.props.addExperience(experience);
+            if (this.props.id !== null) {
+                this.props.updateExperience(experience, this.props.id)
+            } else {
+                this.props.addExperience(experience);
+            }
+            this.setState({
+                ...this.state, fromDate: null, toDate: null, id: null
+            })
             this.props.toggle();
         }
     }
     handleValildation = (control) => {
         switch (control) {
-            case 'companyName':
-                this.setState({ validation: { reqCompany: false } });
+            case 'company':
+                this.setState({ ...this.state, validation: { ...this.state.validation, reqCompany: false } });
                 break;
             case 'designation':
-                this.setState({ validation: { reqDesignation: false } });
+                this.setState({ ...this.state, validation: { ...this.state.validation, reqDesignation: false } });
                 break;
             default:
                 break;
@@ -63,34 +70,71 @@ class AddExperiences extends Component {
     }
     handleDate = (date, dateType) => {
         switch (dateType) {
-            case 'dateFrom':
-                this.setState({
-                    dateFrom: date
-                });
+            case 'fromDate':
+                // this.setState({
+                //     fromDate: date
+                // });
+                this.setState({ ...this.state, validation: { ...this.state.validation, reqDateFrom: false }, fromDate: date });
                 break;
-            case 'dateTo':
-                this.setState({
-                    dateTo: date
-                })
+            case 'toDate':
+                // this.setState({
+                //     toDate: date
+                // })
+                this.setState({ ...this.state, validation: { ...this.state.validation, reqDateTo: false }, toDate: date });
                 break;
             default:
                 break;
+        }
+    }
+    componentDidUpdate() {
+        const experience = this.props.experience;
+
+        if (this.props.isAddNew && this.props.isAddNew !== this.state.isNew) {
+            this.setState({
+                experienceData: null,
+                fromDate: null,
+                toDate: null,
+                id: this.props.id,
+                isNew: this.props.isAddNew,
+                validation: {
+                    reqCompany: false,
+                    reqDesignation: false,
+                    reqDateFrom: false,
+                    reqDateTo: false
+                }
+            })
+        } else if (this.props.id !== this.state.id) {
+            this.setState({
+                experienceData: experience[this.props.id],
+                fromDate: parseISO(experience[this.props.id].fromDate),
+                toDate: new Date(experience[this.props.id].toDate),
+                id: this.props.id,
+                isNew: this.props.isAddNew,
+                validation: {
+                    reqCompany: false,
+                    reqDesignation: false,
+                    reqDateFrom: false,
+                    reqDateTo: false
+                }
+
+            })
         }
     }
     render() {
         return (
             <div>
                 <Modal isOpen={this.props.modal ? true : false} toggle={this.props.toggle} backdrop="static">
-                    <ModalHeader toggle={this.props.toggle}>Modal title</ModalHeader>
+                    <ModalHeader className="card-header" toggle={this.props.toggle}>Add Experience</ModalHeader>
                     <Form className="container" onSubmit={(event) => { this.handleSubmit(event) }} autoComplete='off'>
                         <ModalBody>
                             <Row form>
                                 <Col md={6}>
                                     <FormGroup>
-                                        <Label for="companyName">Company Name</Label>
-                                        <Input type="text" name="companyName" id="companyName" placeholder="Company Name"
+                                        <Label for="company">Company Name</Label>
+                                        <Input type="text" name="company" id="company" placeholder="Company Name"
+                                            defaultValue={this.state.experienceData?.company}
                                             invalid={this.state.validation.reqCompany}
-                                            onChange={(e) => this.handleValildation('companyName')} />
+                                            onBlur={(e) => this.handleValildation('company')} />
                                         <FormFeedback >Required</FormFeedback>
                                     </FormGroup>
                                 </Col>
@@ -98,8 +142,9 @@ class AddExperiences extends Component {
                                     <FormGroup>
                                         <Label for="designation">Designation</Label>
                                         <Input type="text" name="designation" id="designation" placeholder="Designation"
+                                            defaultValue={this.state.experienceData?.designation}
                                             invalid={this.state.validation.reqDesignation}
-                                            onChange={(e) => this.handleValildation('designation')} />
+                                            onBlur={(e) => this.handleValildation('designation')} />
                                         <FormFeedback >Required</FormFeedback>
                                     </FormGroup>
                                 </Col>
@@ -107,44 +152,48 @@ class AddExperiences extends Component {
                             <Row form>
                                 <Col md={6}>
                                     <FormGroup>
-                                        <Label for="dateFrom">From</Label>
-                                        {/* <Input type="text" name="dateFrom" id="dateFrom" placeholder="Date From" invalid={true} /> */}
+                                        <Label for="fromDate">From</Label>
+                                        {/* <Input type="text" name="fromDate" id="fromDate" placeholder="Date From" invalid={true} /> */}
                                         <DatePicker
-                                            name="dateFrom"
+                                            name="fromDate"
                                             dateFormat="dd/MM/yyyy"
                                             className="form-control"
-                                            selected={this.state.dateFrom}
-                                            onChange={(date) => this.handleDate(date, 'dateFrom')}
+                                            selected={this.state.fromDate}
+                                            onChange={(date) => this.handleDate(date, 'fromDate')}
                                             showMonthDropdown
                                             showYearDropdown
                                             dropdownMode="select"
+                                            placeholderText="From"
                                         />
                                         <i className="fa fa-calendar"></i>
-                                        <FormFeedback invalid>Required</FormFeedback>
+                                        {this.state.validation.reqDateFrom ? <div className="invalid-feedback dob-validation">Required</div> : null}
                                     </FormGroup>
                                 </Col>
                                 <Col md={6}>
                                     <FormGroup>
-                                        <Label for="dateTo">To</Label>
-                                        {/* <Input type="text" name="dateTo" id="dateTo" placeholder="Date To" invalid={true} /> */}
+                                        <Label for="toDate">To</Label>
+                                        {/* <Input type="text" name="toDate" id="toDate" placeholder="Date To" invalid={true} /> */}
                                         <DatePicker
-                                            name="dateTo"
-                                            dateFormat="dd/MM/yyyy"
-                                            className="form-control"
-                                            selected={this.state.dateTo}
-                                            onChange={(date) => this.handleDate(date, 'dateTo')}
+
+                                            selected={this.state.toDate}
+                                            onChange={(date) => this.handleDate(date, 'toDate')}
                                             showMonthDropdown
                                             showYearDropdown
                                             dropdownMode="select"
+                                            dateFormat="dd/MM/yyyy"
+                                            name="toDate"
+                                            className="form-control"
+                                            placeholderText="To"
                                         />
                                         <i className="fa fa-calendar"></i>
-                                        <FormFeedback invalid>Required</FormFeedback>
+                                        {this.state.validation.reqDateTo ? <div className="invalid-feedback dob-validation">Required</div> : null}
+
                                     </FormGroup>
                                 </Col>
                             </Row>
                         </ModalBody>
                         <ModalFooter>
-                            <Button color="primary" type="submit">Add</Button>
+                            <Button className="btn btn-info" color="primary" type="submit">Save</Button>
                             <Button color="secondary" onClick={this.props.toggle}>Cancel</Button>
                         </ModalFooter>
                     </Form>
@@ -161,7 +210,8 @@ const mapStateToProps = (state) => {
 }
 const mapDispatchToProps = dispatch => {
     return {
-        addExperience: (data) => dispatch(action.addExperience(data))
+        addExperience: (data) => dispatch(action.addExperience(data)),
+        updateExperience: (data, id) => dispatch(action.updateExperience(data, id))
     }
 }
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AddExperiences))

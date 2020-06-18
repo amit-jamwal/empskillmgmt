@@ -14,7 +14,7 @@ import {
 } from 'reactstrap';
 import Dashboard from './components/dashboard/dashboard';
 import EmployeeDetails from './components/employee-details/employee-details';
-import logo from './images/image.png'
+import logo from './assets/images/image.png'
 import AddEmployee from './containers/AddEmployee/addEmployee';
 import ShowExperience from './containers/AddExperience/showExperience';
 import ShowSkills from './containers/addSkills/showSkills';

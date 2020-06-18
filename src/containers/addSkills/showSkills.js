@@ -1,18 +1,22 @@
+import * as moment from 'moment';
 import React, { Component } from "react";
-import { Button, Card, CardHeader, Table, CardFooter, ListGroup, ListGroupItem, Toast, ToastHeader, ToastBody } from "reactstrap";
-import { withRouter } from "react-router";
 import { connect } from "react-redux";
-import AddSkills from "./addSkills";
+import { withRouter } from "react-router";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Button, Card, CardFooter, CardHeader, Table } from "reactstrap";
 import * as action from '../../store/action/index';
+import AddSkills from "./addSkills";
 import './showSkills.css';
-
 class ShowSkills extends Component {
     constructor(props) {
         super(props);
         this.state = {
             openModal: false,
-            reqValidation: false
+            reqValidation: false,
+            skillId: null
         }
+        let isAddNew = null;
     }
     toggle = () => {
         this.setState({
@@ -24,58 +28,83 @@ class ShowSkills extends Component {
     }
     componentDidUpdate() {
         this.props.showSkills();
+        if (this.props.skillList.length === 0 && this.props.experienceList.length === 0 && Object.keys(this.props.personalInfo).length === 0) {
+            this.props.history.push('./dashboard')
+        }
     }
 
     saveEmployee = () => {
-        console.log(this.props.skillList.length)
-        console.log('ave')
         if (this.props.skillList.length === 0) {
-            this.setState({
-                reqValidation: true
+            toast.warning("Please Add Skills !", {
+                autoClose: 3000,
+                closeOnClick: true,
+                closeButton: true
+            });
+        } else {
+            let finalObj = { ...this.props.personalInfo, experiences: [...this.props.experienceList], skills: [...this.props.skillList] };
+            finalObj.experiences.map((item, ind) => {
+                item['fromDate'] = moment(item['fromDate']).format('YYYY-MM-DD');
+                item['toDate'] = moment(item['toDate']).format('YYYY-MM-DD');
             })
+            this.props.saveEmployee(finalObj);
+
+
         }
     }
-    closeToast = () => {
+    handleDeleteSkill = (ind) => {
+        this.props.deleteSkills(ind);
+        setTimeout(() => {
+            this.props.showSkills();
+        }, 1000);
+    }
+
+    editSkills = (id) => {
+        this.isAddNew = false;
         this.setState({
-            reqValidation: false
+            skillId: id
         })
+        this.toggle()
+    }
+    openModal = () => {
+        this.setState({
+            skillId: null
+        })
+        this.isAddNew = true;
+        this.toggle();
     }
 
     render() {
-        let toster = null;
-        if (this.state.reqValidation) {
-            toster = (<Toast>
-                <ToastHeader>
-                    Reactstrap
-                 </ToastHeader>
-                <ToastBody>
-                    This is a toast on a white background — check it out!
-                </ToastBody>
-            </Toast>)
-        }
-
         const renderRows = this.props.skillList?.map((item, i) => {
-            return <tr key={i}>
-                <th scope="row">{i + 1}</th>
-                <td>{item.skill}</td>
-                <td>{item.rating}</td>
-                <td><Button className="btn btn-info" onClick={() => this.handleDeleteExp(i)}>Delete</Button></td>
+            return <tr key={i} className="row mr-0 ml-0">
+                <th className="col-md-3" scope="row">{i + 1}</th>
+                <td className="col-md-3">{item.skill}</td>
+                <td className="col-md-3">{item.level}</td>
+                <td className="col-md-3">
+                    <div className="pull-right">
+                        <Button className="btn button-color ml-3" onClick={() => this.editSkills(i)}>Edit</Button>
+                        <Button className="btn button-color ml-3" onClick={() => this.handleDeleteSkill(i)}>Delete</Button>
+                    </div>
+                </td>
             </tr>
         });
         return (
             <div className="container-fluid">
                 <Card body>
-                    <CardHeader>Skills
-                    <Button className="btn btn-info" onClick={this.toggle}>Add Skills</Button>
-                        <AddSkills modal={this.state.openModal} toggle={this.toggle}></AddSkills>
+                    <CardHeader>
+                        <span>Skill List</span>
+                        <Button className="btn btn-info" onClick={this.openModal}>Add Skills</Button>
+                        <AddSkills modal={this.state.openModal}
+                            toggle={this.toggle}
+                            id={this.state.skillId}
+                            isAddNew={this.isAddNew}></AddSkills>
                     </CardHeader>
                     <Table responsive hover bordered>
                         <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Skills</th>
-                                <th>Level</th>
-                                <th></th>
+                            <tr className="row mr-0 ml-0">
+                                <th className="col-md-3">#</th>
+                                <th className="col-md-3">Skills</th>
+                                <th className="col-md-3">Level</th>
+                                <th className="col-md-3"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -84,33 +113,29 @@ class ShowSkills extends Component {
                     </Table>
                     <CardFooter>
                         <div className="pull-right">
-                            <Button className="btn btn-info button mr-3" type="button" onClick={this.goBack}>Back</Button>
-                            <Button className="btn btn-info button" type="button" onClick={this.saveEmployee}>Save</Button>
+                            <Button className="btn button-color mr-3" type="button" onClick={this.goBack}>Back</Button>
+                            <Button className="btn button-color mr-3" type="button" onClick={this.saveEmployee}>Save</Button>
                         </div>
                     </CardFooter>
                 </Card>
-                <Toast isOpen={this.state.reqValidation}>
-                    <ToastHeader toggle={this.closeToast}>Toast title</ToastHeader>
-                    <ToastBody>
-                        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                    </ToastBody>
-                </Toast>
+                <ToastContainer />
             </div>
         )
     }
 }
 
 const mapStateToProps = (state) => {
-    console.log('skill', state);
     return {
-        skillList: state.skillList || []
+        skillList: state.skillList || [],
+        experienceList: state.experienceList,
+        personalInfo: state.personalInfo
     };
 }
 const mapDispatchToProps = dispatch => {
     return {
         showSkills: () => dispatch(action.showSkills()),
-        deleteSkills: (id) => dispatch(action.deleteSkills(id))
+        deleteSkills: (id) => dispatch(action.deleteSkills(id)),
+        saveEmployee: (payload) => dispatch(action.saveEmployee(payload))
     }
 }
-
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(ShowSkills))

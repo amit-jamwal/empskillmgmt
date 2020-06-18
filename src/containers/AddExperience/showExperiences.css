@@ -13,3 +13,19 @@
 .button {
     float: none !important;
 }
+
+.table td {
+    border-top: 1px solid #dee2e6 !important;
+}
+
+.card-header span {
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: bold;
+    font-size: 1.3rem;
+}
+
+.card-header .close {
+    color: #fff;
+  }
