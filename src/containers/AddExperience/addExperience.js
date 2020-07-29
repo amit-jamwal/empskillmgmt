@@ -28,6 +28,7 @@ class AddExperiences extends Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
+        console.log('')
         const formData = new FormData(e.target);
         const experience = {
             company: formData.get('company'),
