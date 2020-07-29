@@ -123,7 +123,7 @@ class AddExperiences extends Component {
     render() {
         return (
             <div>
-                <Modal isOpen={this.props.modal ? true : false} toggle={this.props.toggle} backdrop="static">
+                <Modal contentClassName="card-style" isOpen={this.props.modal ? true : false} toggle={this.props.toggle} backdrop="static">
                     <ModalHeader className="card-header" toggle={this.props.toggle}>Add Experience</ModalHeader>
                     <Form className="container" onSubmit={(event) => { this.handleSubmit(event) }} autoComplete='off'>
                         <ModalBody>

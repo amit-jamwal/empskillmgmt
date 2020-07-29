@@ -98,7 +98,7 @@ class AddSkills extends Component {
     render() {
         return (
             <div>
-                <Modal isOpen={this.props.modal ? true : false} backdrop="static">
+                <Modal contentClassName="card-style" isOpen={this.props.modal ? true : false} backdrop="static">
                     <ModalHeader className="card-header" toggle={this.props.toggle}>Add Skills</ModalHeader>
                     <Form className="container" onSubmit={(event) => { this.handleSubmit(event) }} autoComplete='off'>
                         <ModalBody>
