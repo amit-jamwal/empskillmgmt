@@ -14,7 +14,7 @@ import {
 } from 'reactstrap';
 import Dashboard from './components/dashboard/dashboard';
 import EmployeeDetails from './components/employee-details/employee-details';
-import logo from './assets/images/image.png'
+import logo from './assets/images/res-mng-logo.svg'
 import AddEmployee from './containers/AddEmployee/addEmployee';
 import ShowExperience from './containers/AddExperience/showExperience';
 import ShowSkills from './containers/addSkills/showSkills';
@@ -24,7 +24,7 @@ function App() {
     <div>
       <Navbar color="dark" dark expand="md">
         <NavbarBrand>
-          <img className="img-fluid" src={logo} alt="logo" />
+          <img className="img-fluid" src={logo} alt="Resource Management Logo"/>
         </NavbarBrand>
         <NavbarToggler />
         <Collapse navbar>

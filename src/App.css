@@ -1,14 +1,21 @@
 
-.nav-item a{
-  
-    padding-right: 0.5rem;
-    padding-left: 0.5rem;
-    color: rgba(255, 255, 255, 0.75);
-  font-weight: bold;
 
+
+.navbar-nav .nav-item a {
+  padding-right: 0.5rem;
+  padding-left: 0.5rem;
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: bold;
+  text-decoration: none;
 }
-.nav-item a:hover, a:focus {
+.nav-item a:hover,
+a:focus {
   color: #ffffff;
   font-weight: bold;
-  
+  text-decoration: underline;
+
+}
+
+.navbar-brand img {
+  height: 50px;
 }

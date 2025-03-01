@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 200" width="500" height="200">
+  <!-- Transparent Background -->
+  <rect width="500" height="200" fill="none"/>
+
+  <!-- Multi-color gradient for the icon box -->
+  <defs>
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF5733;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FF8C00;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFCD00;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Large multi-color gradient box with border radius -->
+  <rect x="150" y="60" width="100" height="100" fill="url(#gradient1)" rx="15" ry="15"/>
+
+  <!-- Text (Resource) in white -->
+  <text x="230" y="100" font-family="Arial, sans-serif" font-size="24" fill="#ffffff" text-anchor="start" alignment-baseline="middle">
+    Resource
+  </text>
+
+  <!-- Text (Management) in white -->
+  <text x="230" y="120" font-family="Arial, sans-serif" font-size="24" fill="#ffffff" text-anchor="start" alignment-baseline="middle">
+    Management
+  </text>
+</svg>
